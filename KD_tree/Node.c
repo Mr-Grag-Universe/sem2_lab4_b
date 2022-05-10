@@ -113,3 +113,25 @@ KD_item * KD_node_get_item(const KD_node * node, unsigned int x) {
 
     return node->items[ind];
 }
+
+Error KD_node_delete(KD_node * node, KD_key * key) {
+    if (node == NULL || key == NULL) {
+        fprintf(stderr, "NULL ptr node or key in deleting item from node");
+        return WRONG_INPUT;
+    }
+
+    KD_item * item = KD_node_get_item(node, key->keys[node->current_node_dimension_index]);
+    size_t ind = KD_BS(node, key->keys[node->current_node_dimension_index]);
+    if (item == NULL) {
+        fprintf(stderr, "strange null in node deleting.\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+
+    KD_item_free(item);
+
+    memmove(node->items + ind, node->items + ind + 1, sizeof(KD_item*) * (node->number_of_items-ind-1));
+    node->items[node->number_of_items-1] = NULL;
+    node->number_of_items--;
+
+    return IT_IS_OK;
+}

@@ -40,7 +40,7 @@ Error delete_tree_dialog(KD_tree * tree) {
         return NULL_PTR_IN_UNEXCITED_PLACE;
     }
 
-    Error report = 0; // delete_el_from_BT(tree, key);
+    Error report = KD_tree_delete(tree, key);
     KD_key_free(key);
 
     return report;

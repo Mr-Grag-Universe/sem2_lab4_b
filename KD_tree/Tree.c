@@ -163,6 +163,27 @@ Error KD_tree_add(KD_tree * tree, KD_item * item) {
     return report;
 }
 
+Error KD_tree_delete(KD_tree * tree, KD_key * key) {
+    if (tree == NULL || key == NULL) {
+        fprintf(stderr, "NULL tree or key in delete func.\n");
+        return WRONG_INPUT;
+    }
+
+    KD_node * node = KD_tree_get_node(tree, key);
+    if (node == NULL) {
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+
+    KD_item * item = KD_node_get_item(node, key->keys[node->current_node_dimension_index]);
+    if (item == NULL) {
+        fprintf(stderr, "item was found with get_node from tree but it didn't with get_item from node.\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+
+    Error report = KD_node_delete(node, key);
+    return report;
+}
+
 size_t KD_tree_depth(KD_node * node) {
     if (node == NULL)
         return 0;

@@ -63,6 +63,7 @@ Error KD_node_free(KD_node *);
 Error KD_node_add(KD_node * node, KD_item * item);
 Error KD_node_free_items(KD_node * node);
 KD_item * KD_node_get_item(const KD_node * node, unsigned int x);
+Error KD_node_delete(KD_node * node, KD_key * key);
 
 //===========TREE===========
 
@@ -81,6 +82,7 @@ typedef struct KD_tree {
 KD_tree * KD_tree_init(size_t number_of_dimension, size_t dots_in_dimension, long (**cmp_funcs)(void*, void*));
 Error KD_tree_free(KD_tree *);
 Error KD_tree_add(KD_tree *, KD_item *);
+Error KD_tree_delete(KD_tree *, KD_key *);
 size_t KD_BS(const KD_node * node, unsigned int x);
 KD_node * KD_tree_get_node(const KD_tree *, KD_key *);
 Error KD_tree_print(const KD_tree *);
