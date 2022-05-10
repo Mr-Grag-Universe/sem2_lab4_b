@@ -6,6 +6,7 @@
 #include "string.h"
 #include "KD_tree.h"
 #include "Errors.h"
+#include "MyMath.h"
 
 KD_node * KD_node_init(size_t number_of_items, size_t dimension) {
     KD_node * node = malloc(sizeof(KD_node));
@@ -65,6 +66,19 @@ Error KD_node_free_items(KD_node * node) {
     return IT_IS_OK;
 }
 
+unsigned int KD_node_count_face(KD_node * node) {
+    if (node == NULL) {
+        fprintf(stderr, "NULL node ptr in counting of it's face.\n");
+        return 0;
+    }
+
+    unsigned long long sum = 0;
+    for (size_t i = 0; i < node->number_of_items; ++i)
+        sum += node->items[i]->key->keys[node->current_node_dimension_index];
+
+    return (unsigned int)(sum / node->number_of_items);
+}
+
 Error KD_node_add(KD_node * node, KD_item * item) {
     if (node == NULL) {
         fprintf(stderr, "NULL-ptr node in adding");
@@ -78,6 +92,8 @@ Error KD_node_add(KD_node * node, KD_item * item) {
     if (node->number_of_items == node->max_number_of_items) {
         node->left = KD_node_init(node->max_number_of_items, (node->current_node_dimension_index + 1) % node->max_number_of_items);
         node->right = KD_node_init(node->max_number_of_items, (node->current_node_dimension_index + 1) % node->max_number_of_items);
+
+        node->face = KD_node_count_face(node);
 
         if (item->key->keys[node->current_node_dimension_index] > node->face) {
             node = node->right;
