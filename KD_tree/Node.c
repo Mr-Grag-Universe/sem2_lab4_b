@@ -151,3 +151,27 @@ Error KD_node_delete(KD_node * node, KD_key * key) {
 
     return IT_IS_OK;
 }
+
+KD_node * get_max_node(const KD_node * node) {
+    if (node == NULL)
+        return NULL;
+
+    KD_node * res = node;
+    while (res->right) {
+        res = res->right;
+    }
+
+    return res;
+}
+
+KD_node * get_min_node(const KD_node * node) {
+    if (node == NULL)
+        return NULL;
+
+    KD_node * res = node;
+    while (res->left) {
+        res = res->left;
+    }
+
+    return res;
+}

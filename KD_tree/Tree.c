@@ -75,7 +75,7 @@ Error KD_tree_free(KD_tree * tree) {
     return IT_IS_OK;
 }
 
-KD_node * KD_tree_get_node(const KD_tree * tree, KD_key * key) {
+KD_iterator_container * KD_tree_get_node(const KD_tree * tree, KD_key * key) {
     if (tree == NULL) {
         fprintf(stderr, "tree ptr is NULL in adding.\n");
         return NULL;
@@ -87,14 +87,19 @@ KD_node * KD_tree_get_node(const KD_tree * tree, KD_key * key) {
     }
 
     size_t ind = 0;
+    KD_node ** nodes = NULL;
+    size_t number_of_nodes = 0;
+
     while (node) {
         size_t d = node->current_node_dimension_index;
-        ind = KD_BS(node, key->keys[d]);
-        if (ind < node->number_of_items) {
+
+        for (size_t i = 0; i < node->number_of_items; ++i)
             if (!KD_key_cmp(node->items[ind]->key, key, 1, 0)) {
-                return node;
+                number_of_nodes++;
+                nodes = realloc(nodes, sizeof(KD_node*) * number_of_nodes);
+                nodes[number_of_nodes-1] = node;
             }
-        }
+
 
         if (key->keys[d] > node->face) {
             if (node->right)
@@ -109,10 +114,11 @@ KD_node * KD_tree_get_node(const KD_tree * tree, KD_key * key) {
         }
     }
 
-    if (ind > node->number_of_items)
-        fprintf(stderr, "strange thing in getting of node.\n");
+    KD_iterator_container * container = malloc(sizeof(KD_iterator_container));
+    container->number_of_elements = number_of_nodes;
+    container->iterator = nodes;
 
-    return NULL;
+    return container;
 }
 
 Error KD_tree_add(KD_tree * tree, KD_item * item) {
@@ -131,10 +137,13 @@ Error KD_tree_add(KD_tree * tree, KD_item * item) {
         return IT_IS_OK;
     }
 
-    KD_node * node = KD_tree_get_node(tree, item->key);
-    if (node) {
+    KD_iterator_container * container = KD_tree_get_node(tree, item->key);
+    if (container->number_of_elements) {
+        KD_container_free(container);
         return IT_IS_OK;
     }
+    KD_node * node = container->iterator[container->number_of_elements-1];
+    KD_container_free(container);
 
     node = tree->root;
     size_t ind = 0;
@@ -163,24 +172,55 @@ Error KD_tree_add(KD_tree * tree, KD_item * item) {
     return report;
 }
 
-Error KD_tree_delete(KD_tree * tree, KD_key * key) {
+Error KD_tree_delete(KD_tree * tree, KD_key * key, size_t index_of_item) {
     if (tree == NULL || key == NULL) {
         fprintf(stderr, "NULL tree or key in delete func.\n");
         return WRONG_INPUT;
     }
 
-    KD_node * node = KD_tree_get_node(tree, key);
-    if (node == NULL) {
+    KD_iterator_container * container = KD_tree_get_node(tree, key);
+    if (container->iterator == NULL || container->number_of_elements == 0) {
+        KD_container_free(container);
         return NULL_PTR_IN_UNEXCITED_PLACE;
     }
+    KD_node ** nodes = container->iterator;
+    size_t number_of_nodes = container->number_of_elements;
 
-    KD_item * item = KD_node_get_item(node, key->keys[node->current_node_dimension_index]);
-    if (item == NULL) {
+    size_t * indexes = NULL;
+    size_t number_of_eq = 0;
+    for (size_t i = 0; i < number_of_nodes; ++i) {
+        // можно улучшить ассимптотику через бинарный поиск
+        for (size_t j = 0; j < nodes[i]->number_of_items; ++j) {
+            if (KD_key_cmp(nodes[i]->items[j]->key, key, 1, 0)) {
+                indexes = realloc(indexes, sizeof(size_t) * (number_of_eq+1));
+                indexes[number_of_eq] = j;
+                number_of_eq++;
+            }
+        }
+    }
+
+    if (number_of_eq == 0) {
         fprintf(stderr, "item was found with get_node from tree but it didn't with get_item from node.\n");
         return NULL_PTR_IN_UNEXCITED_PLACE;
     }
 
-    Error report = KD_node_delete(node, key);
+    Error report = 0;
+    if (number_of_eq == 1) {
+        report = KD_node_delete(nodes[0], key);
+    } else {
+        if (number_of_eq <= index_of_item) {
+            free(indexes);
+            fprintf(stderr, "too big index.\n");
+            return WRONG_INPUT;
+        }
+        size_t ind = indexes[index_of_item];
+
+        KD_item_free(node->items[ind]);
+        memmove(node->items + ind, node->items + ind + 1, sizeof(KD_item*) * (node->number_of_items-ind-1));
+        node->items[node->number_of_items-1] = NULL;
+        node->number_of_items--;
+    }
+
     return report;
 }
 

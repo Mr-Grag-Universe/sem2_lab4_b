@@ -72,22 +72,22 @@ Error get_tree_dialog(const KD_tree * tree) {
     return IT_IS_OK;
 }
 
-//
-//Error traversal_tree_dialog(const Tree* tree) {
-//    TreeIteratorContainer * container = create_iterator(tree);
-//    if (container == NULL) {
-//        printf("this tree is empty or something came wrong!\n");
-//        return NULL_PTR_IN_UNEXCITED_PLACE;
-//    }
-//
-//    for (size_t i = 0; i < container->number_of_elements; ++i) {
-//        print_node(container->iterator[i]);
-//    }
-//
-//    free_container(container);
-//    return IT_IS_OK;
-//}
-//
+
+Error traversal_tree_dialog(const Tree* tree) {
+    TreeIteratorContainer * container = create_iterator(tree);
+    if (container == NULL) {
+        printf("this tree is empty or something came wrong!\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+
+    for (size_t i = 0; i < container->number_of_elements; ++i) {
+        print_node(container->iterator[i]);
+    }
+
+    frree_container(containe);
+    return IT_IS_OK;
+}
+
 //Error find_min_dialog(const Tree * tree) {
 //    if (tree == NULL) {
 //        fprintf(stderr, "WARNING: This tree's pointer is NULL and there is no min or max element here.\n");
