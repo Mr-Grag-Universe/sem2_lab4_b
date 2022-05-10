@@ -3,6 +3,7 @@
 //
 #include "stdlib.h"
 #include "stdio.h"
+#include "MyString.h"
 #include "KD_tree.h"
 
 KD_key * KD_key_init(size_t number_of_dimensions, unsigned int * keys) {
@@ -46,7 +47,7 @@ long KD_key_cmp(KD_key * key1, KD_key * key2, bool each_x , size_t index_of_dime
     }
 
     if (key1->number_of_dimensions <= index_of_dimension) {
-        fprintf(stderr, "too big number of dimension.\n");
+        fprintf(stderr, "too big number of current_node_dimension_index.\n");
         exit(WRONG_INPUT);
     }
 
@@ -58,4 +59,33 @@ long KD_key_cmp(KD_key * key1, KD_key * key2, bool each_x , size_t index_of_dime
             return key1->keys[i] - key2->keys[i];
     }
     return 0;
+}
+
+KD_key * KD_key_enter(size_t dimension) {
+    unsigned int * keys = malloc(sizeof(unsigned int) * dimension);
+    if (keys == NULL) {
+        fprintf(stderr, "memory overflow in keys enter.\n");
+        exit(MEMORY_OVERFLOW);
+    }
+
+    for (size_t i = 0; i < dimension; ++i) {
+        keys[i] = get_u_int();
+    }
+    KD_key * key = KD_key_init(dimension, keys);
+
+    return key;
+}
+
+Error KD_key_print(const KD_key * key) {
+    if (key == NULL) {
+        fprintf(stderr, "NULL key in printing");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+
+    for (size_t i = 0; i < key->number_of_dimensions; ++i) {
+        printf("%u", key->keys[i]);
+    }
+    printf("\n");
+
+    return IT_IS_OK;
 }

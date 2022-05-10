@@ -189,6 +189,21 @@ int get_int() {
     return res;
 }
 
+unsigned int get_u_int() {
+    unsigned int res = 0;
+    printf("-> ");
+    char * line = get_line();
+    while (line == NULL || is_digit(line) == 0 || line[0] == '-') {
+        printf("wrong input\n-> ");
+        if (line)
+            free(line);
+        line = get_line();
+    }
+    res = (unsigned int) atol(line);
+    free(line);
+    return res;
+}
+
 /// размер без 0 терминотора
 char * generate_word(size_t size) {
     char * word = malloc(sizeof(char) * (size+1));

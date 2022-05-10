@@ -1,0 +1,1 @@
+add_library(dialog STATIC dialog_functions.c)

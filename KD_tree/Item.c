@@ -20,3 +20,16 @@ KD_item * KD_item_init(size_t number_of_dimensions, KD_key* key, KD_info* info) 
 
     return item;
 }
+
+Error KD_item_free(KD_item * item) {
+    if (item == NULL) {
+        fprintf(stderr, "item ptr is NULL was 'freed'.\n");
+        return FREEING_OF_NULL_PTR;
+    }
+
+    KD_info_free(item->info);
+    KD_key_free(item->key);
+    free(item);
+
+    return IT_IS_OK;
+}

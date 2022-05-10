@@ -8,7 +8,8 @@
 #include "KD_tree.h"
 #include "SortsSearch.h"
 
-size_t KD_BS(KD_node * node, unsigned int x, size_t dim) {
+size_t KD_BS(const KD_node * node, unsigned int x) {
+    size_t dim = node->current_node_dimension_index;
     size_t left = 0, right = node->number_of_items;
     size_t size = sizeof(KD_item);
     void * array = node->items;
@@ -35,10 +36,11 @@ KD_tree * KD_tree_init(size_t number_of_dimension, size_t dots_in_dimension, lon
     tree->root = NULL;
 
     // мб есть более корректный вариант выделения памяти
-    tree->cmp_funcs = malloc(sizeof(void*) * number_of_dimension);
-    for (size_t i = 0; i < number_of_dimension; ++i) {
-        tree->cmp_funcs[i] = cmp_funcs[i];
-    }
+    //tree->cmp_funcs = malloc(sizeof(void*) * number_of_dimension);
+    //for (size_t i = 0; i < number_of_dimension; ++i) {
+        //tree->cmp_funcs[i] = cmp_funcs[i];
+    //}
+    tree->cmp_funcs = NULL;
 
     tree->free = KD_tree_free;
     tree->add = KD_tree_add;
@@ -53,6 +55,10 @@ void recursion_free(KD_node * node) {
     recursion_free(node->left);
     recursion_free(node->right);
 
+    node->left = NULL;
+    node->right = NULL;
+
+    KD_node_free_items(node);
     KD_node_free(node);
 }
 
@@ -63,11 +69,13 @@ Error KD_tree_free(KD_tree * tree) {
     }
 
     recursion_free(tree->root);
+    //free(tree->cmp_funcs);
+    free(tree);
 
     return IT_IS_OK;
 }
 
-KD_node * KD_tree_get_node(KD_tree * tree, KD_key * key) {
+KD_node * KD_tree_get_node(const KD_tree * tree, KD_key * key) {
     if (tree == NULL) {
         fprintf(stderr, "tree ptr is NULL in adding.\n");
         return NULL;
@@ -80,8 +88,8 @@ KD_node * KD_tree_get_node(KD_tree * tree, KD_key * key) {
 
     size_t ind = 0;
     while (node) {
-        size_t d = node->dimension;
-        ind = KD_BS(node, key->keys[d], d);
+        size_t d = node->current_node_dimension_index;
+        ind = KD_BS(node, key->keys[d]);
         if (ind < node->number_of_items) {
             if (!KD_key_cmp(node->items[ind]->key, key, 1, 0)) {
                 return node;
@@ -118,8 +126,9 @@ Error KD_tree_add(KD_tree * tree, KD_item * item) {
     }
 
     if (tree->root == NULL) {
-        tree->root = KD_node_init(tree->dots_in_node, tree->number_of_dimensions);
+        tree->root = KD_node_init(tree->dots_in_node, 0);
         KD_node_add(tree->root, item);
+        return IT_IS_OK;
     }
 
     KD_node * node = KD_tree_get_node(tree, item->key);
@@ -130,7 +139,7 @@ Error KD_tree_add(KD_tree * tree, KD_item * item) {
     node = tree->root;
     size_t ind = 0;
     while (node) {
-        size_t d = node->dimension;
+        size_t d = node->current_node_dimension_index;
 
         if (node->left == NULL && node->right == NULL)
             break;
@@ -183,7 +192,7 @@ Error KD_tree_recursion_print(KD_node * node, char ** offset) {
             printf("key: ");
             for (size_t j = 0; j < item->number_of_dimensions; ++j)
                 printf("%u ", item->key->keys[j]);
-            printf(": %s; ", item->info->str_key);
+            printf(": %s; ", item->info->str_info);
         }
     else
         printf("-");
