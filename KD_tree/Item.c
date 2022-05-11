@@ -15,6 +15,7 @@ KD_item * KD_item_init(size_t number_of_dimensions, KD_key* key, KD_info* info) 
 
     item->key = key;
     item->info = info;
+    item->node = NULL;
 
     item->number_of_dimensions = number_of_dimensions;
 
@@ -29,6 +30,7 @@ Error KD_item_free(KD_item * item) {
 
     KD_info_free(item->info);
     KD_key_free(item->key);
+    item->node = NULL;
     free(item);
 
     return IT_IS_OK;

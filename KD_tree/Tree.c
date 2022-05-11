@@ -94,7 +94,7 @@ KD_iterator_container * KD_tree_get_node(const KD_tree * tree, KD_key * key) {
         size_t d = node->current_node_dimension_index;
 
         for (size_t i = 0; i < node->number_of_items; ++i)
-            if (!KD_key_cmp(node->items[ind]->key, key, 1, 0)) {
+            if (!KD_key_cmp(node->items[i]->key, key, 1, 0)) {
                 number_of_nodes++;
                 nodes = realloc(nodes, sizeof(KD_node*) * number_of_nodes);
                 nodes[number_of_nodes-1] = node;
@@ -131,21 +131,22 @@ Error KD_tree_add(KD_tree * tree, KD_item * item) {
         return NULL_PTR_IN_UNEXCITED_PLACE;
     }
 
+    // инициализация - добавление первого элемента
     if (tree->root == NULL) {
         tree->root = KD_node_init(tree->dots_in_node, 0);
         KD_node_add(tree->root, item);
         return IT_IS_OK;
     }
 
-    KD_iterator_container * container = KD_tree_get_node(tree, item->key);
-    if (container->number_of_elements) {
-        KD_container_free(container);
-        return IT_IS_OK;
-    }
-    KD_node * node = container->iterator[container->number_of_elements-1];
-    KD_container_free(container);
+//    KD_iterator_container * container = KD_tree_get_node(tree, item->key);
+//    if (container->number_of_elements) {
+//        KD_container_free(container);
+//        return IT_IS_OK;
+//    }
+//    KD_node * node = container->iterator[container->number_of_elements-1];
+//    KD_container_free(container);
 
-    node = tree->root;
+    KD_node * node = tree->root;
     size_t ind = 0;
     while (node) {
         size_t d = node->current_node_dimension_index;
@@ -187,13 +188,16 @@ Error KD_tree_delete(KD_tree * tree, KD_key * key, size_t index_of_item) {
     size_t number_of_nodes = container->number_of_elements;
 
     size_t * indexes = NULL;
+    KD_item ** items = NULL;
     size_t number_of_eq = 0;
     for (size_t i = 0; i < number_of_nodes; ++i) {
         // можно улучшить ассимптотику через бинарный поиск
         for (size_t j = 0; j < nodes[i]->number_of_items; ++j) {
-            if (KD_key_cmp(nodes[i]->items[j]->key, key, 1, 0)) {
+            if (!KD_key_cmp(nodes[i]->items[j]->key, key, 1, 0)) {
                 indexes = realloc(indexes, sizeof(size_t) * (number_of_eq+1));
+                items = realloc(items, sizeof(KD_item*) * (number_of_eq+1));
                 indexes[number_of_eq] = j;
+                items[number_of_eq] = nodes[i]->items[j];
                 number_of_eq++;
             }
         }
@@ -215,11 +219,16 @@ Error KD_tree_delete(KD_tree * tree, KD_key * key, size_t index_of_item) {
         }
         size_t ind = indexes[index_of_item];
 
-        KD_item_free(node->items[ind]);
+        KD_item_free(items[ind]);
+        KD_node * node = items[ind]->node;
         memmove(node->items + ind, node->items + ind + 1, sizeof(KD_item*) * (node->number_of_items-ind-1));
         node->items[node->number_of_items-1] = NULL;
         node->number_of_items--;
     }
+
+    KD_container_free(container);
+    free(indexes);
+    free(items);
 
     return report;
 }

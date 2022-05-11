@@ -40,7 +40,45 @@ Error delete_tree_dialog(KD_tree * tree) {
         return NULL_PTR_IN_UNEXCITED_PLACE;
     }
 
-    Error report = KD_tree_delete(tree, key);
+    KD_iterator_container * container = KD_tree_get_node(tree, key);
+    if (container == NULL) {
+        KD_key_free(key);
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+
+    if (container->number_of_elements == 0) {
+        printf("there is not elements with such keys.\n");
+        KD_key_free(key);
+        KD_container_free(container);
+        return IT_IS_OK;
+    }
+    Error report = 0;
+    if (1) {
+        printf("There are several dots with the same keys. Please, chose only one of them.\n");
+        size_t ind = container->number_of_elements;
+        while (ind >= container->number_of_elements) {
+            ind = get_int();
+            if (ind >= container->number_of_elements) {
+                printf("too big index. do you want to continue? (y/n): ");
+                char * answer = get_line();
+                if (answer == NULL) {
+                    KD_container_free(container);
+                    KD_key_free(key);
+                    return IT_IS_OK;
+                }
+                else if (strcmp("y", answer) != 0) {
+                    KD_container_free(container);
+                    KD_key_free(key);
+                    return IT_IS_OK;
+                }
+                else {
+                    continue;
+                }
+            }
+        }
+        report = KD_tree_delete(tree, key, ind);
+    }
+    KD_container_free(container);
     KD_key_free(key);
 
     return report;
@@ -73,20 +111,20 @@ Error get_tree_dialog(const KD_tree * tree) {
 }
 
 
-Error traversal_tree_dialog(const Tree* tree) {
-    TreeIteratorContainer * container = create_iterator(tree);
-    if (container == NULL) {
-        printf("this tree is empty or something came wrong!\n");
-        return NULL_PTR_IN_UNEXCITED_PLACE;
-    }
-
-    for (size_t i = 0; i < container->number_of_elements; ++i) {
-        print_node(container->iterator[i]);
-    }
-
-    frree_container(containe);
-    return IT_IS_OK;
-}
+//Error traversal_tree_dialog(const Tree* tree) {
+//    TreeIteratorContainer * container = create_iterator(tree);
+//    if (container == NULL) {
+//        printf("this tree is empty or something came wrong!\n");
+//        return NULL_PTR_IN_UNEXCITED_PLACE;
+//    }
+//
+//    for (size_t i = 0; i < container->number_of_elements; ++i) {
+//        print_node(container->iterator[i]);
+//    }
+//
+//    frree_container(containe);
+//    return IT_IS_OK;
+//}
 
 //Error find_min_dialog(const Tree * tree) {
 //    if (tree == NULL) {

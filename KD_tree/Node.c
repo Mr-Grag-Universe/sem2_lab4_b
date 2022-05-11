@@ -110,6 +110,7 @@ Error KD_node_add(KD_node * node, KD_item * item) {
     memmove(node->items + ind + 1, node->items + ind, (node->number_of_items-ind) * sizeof(KD_item*));
     node->items[ind] = item;
     node->number_of_items++;
+    item->node = node;
 
     return IT_IS_OK;
 }
