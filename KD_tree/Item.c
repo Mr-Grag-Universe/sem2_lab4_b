@@ -35,3 +35,14 @@ Error KD_item_free(KD_item * item) {
 
     return IT_IS_OK;
 }
+
+Error KD_item_print(KD_item * item) {
+    if (item == NULL) {
+        printf("null\n");
+        return IT_IS_OK;
+    }
+    KD_key_print(item->key);
+    KD_info_print(item->info);
+
+    return IT_IS_OK;
+}

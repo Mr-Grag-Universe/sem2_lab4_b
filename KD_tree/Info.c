@@ -44,7 +44,7 @@ Error KD_info_print(KD_info * info) {
         return NULL_PTR_IN_UNEXCITED_PLACE;
     }
 
-    printf("%s\n", info->str_info);
+    printf("INFO: %s\n", info->str_info);
 
     return IT_IS_OK;
 }

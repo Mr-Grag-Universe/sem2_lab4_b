@@ -43,6 +43,7 @@ typedef struct KD_item {
 KD_item * KD_item_init(size_t number_of_dimension, KD_key*, KD_info*);
 Error KD_item_free(KD_item *);
 long KD_item_cmp(void *, void *, size_t dim);
+Error KD_item_print(KD_item * item);
 
 //=============NODE=============
 
@@ -70,7 +71,8 @@ KD_node * get_min_node(const KD_node * node);
 
 //===========TREE===========
 
-struct KD_iterator_container;
+struct KD_node_iterator_container;
+struct KD_item_iterator_container;
 typedef struct KD_tree {
     size_t depth;
     size_t dots_in_node;
@@ -88,16 +90,24 @@ Error KD_tree_free(KD_tree *);
 Error KD_tree_add(KD_tree *, KD_item *);
 Error KD_tree_delete(KD_tree *, KD_key *, size_t index_of_item);
 size_t KD_BS(const KD_node * node, unsigned int x);
-struct KD_iterator_container * KD_tree_get_node(const KD_tree *, KD_key *);
+struct KD_node_iterator_container * KD_tree_get_node(const KD_tree *, KD_key *);
+struct KD_item_iterator_container * KD_tree_get_items(const KD_tree * tree, KD_key * key);
 Error KD_tree_print(const KD_tree *);
-//=============ITERATOR============
+//=============ITERATORS============
 
-typedef struct KD_iterator_container {
+typedef struct KD_node_iterator_container {
     size_t number_of_elements;
     KD_node ** iterator;
-} KD_iterator_container;
-KD_iterator_container * KD_iterator_create(const KD_tree * tree);
-Error KD_container_free(KD_iterator_container * container);
+} KD_node_iterator_container;
+KD_node_iterator_container * KD_node_iterator_create(const KD_tree * tree);
+Error KD_node_container_free(KD_node_iterator_container * container);
+
+typedef struct KD_item_iterator_container {
+    size_t number_of_elements;
+    KD_item ** iterator;
+} KD_item_iterator_container;
+KD_item_iterator_container * KD_item_iterator_create(const KD_tree * tree);
+Error KD_item_container_free(KD_item_iterator_container * container);
 
 #endif //LAB4B_PROT_KD_TREE_H
 

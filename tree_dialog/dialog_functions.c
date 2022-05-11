@@ -40,7 +40,7 @@ Error delete_tree_dialog(KD_tree * tree) {
         return NULL_PTR_IN_UNEXCITED_PLACE;
     }
 
-    KD_iterator_container * container = KD_tree_get_node(tree, key);
+    KD_node_iterator_container * container = KD_tree_get_node(tree, key);
     if (container == NULL) {
         KD_key_free(key);
         return NULL_PTR_IN_UNEXCITED_PLACE;
@@ -49,7 +49,7 @@ Error delete_tree_dialog(KD_tree * tree) {
     if (container->number_of_elements == 0) {
         printf("there is not elements with such keys.\n");
         KD_key_free(key);
-        KD_container_free(container);
+        KD_node_container_free(container);
         return IT_IS_OK;
     }
     Error report = 0;
@@ -62,12 +62,12 @@ Error delete_tree_dialog(KD_tree * tree) {
                 printf("too big index. do you want to continue? (y/n): ");
                 char * answer = get_line();
                 if (answer == NULL) {
-                    KD_container_free(container);
+                    KD_node_container_free(container);
                     KD_key_free(key);
                     return IT_IS_OK;
                 }
                 else if (strcmp("y", answer) != 0) {
-                    KD_container_free(container);
+                    KD_node_container_free(container);
                     KD_key_free(key);
                     return IT_IS_OK;
                 }
@@ -78,7 +78,7 @@ Error delete_tree_dialog(KD_tree * tree) {
         }
         report = KD_tree_delete(tree, key, ind);
     }
-    KD_container_free(container);
+    KD_node_container_free(container);
     KD_key_free(key);
 
     return report;
@@ -96,16 +96,32 @@ Error get_tree_dialog(const KD_tree * tree) {
         return NULL_PTR_IN_UNEXCITED_PLACE;
     }
 
-    KD_node * node = KD_tree_get_node(tree, key);
-    if (node == NULL) {
-        fprintf(stderr, "there is no such element in this tree.\n");
-        return NULL_PTR_IN_UNEXCITED_PLACE;
-    }
-    KD_info * info = node->items[KD_BS(node, key->keys[node->current_node_dimension_index])]->info;
-    KD_key_free(key);
+//    KD_node * node = KD_tree_get_node(tree, key);
+//    if (node == NULL) {
+//        fprintf(stderr, "there is no such element in this tree.\n");
+//        return NULL_PTR_IN_UNEXCITED_PLACE;
+//    }
+//    KD_info * info = node->items[KD_BS(node, key->keys[node->current_node_dimension_index])]->info;
+//    KD_key_free(key);
+//
+//    if (!KD_info_print(info) || !KD_key_print(key))
+//        return WRONG_INPUT;
 
-    if (!KD_info_print(info) || !KD_key_print(key))
-        return WRONG_INPUT;
+    KD_item_iterator_container * container = KD_tree_get_items(tree, key);
+    if (container == NULL || container->number_of_elements == 0 && container->iterator == NULL) {
+        printf("there is no such element in this tree.\n");
+        if (container)
+            KD_item_container_free(container);
+        KD_key_free(key);
+        return IT_IS_OK;
+    }
+
+    size_t number_of_items = container->number_of_elements;
+    for (size_t i = 0; i < number_of_items; ++i) {
+        KD_item_print(container->iterator[i]);
+    }
+    KD_item_container_free(container);
+    KD_key_free(key);
 
     return IT_IS_OK;
 }

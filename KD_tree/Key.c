@@ -82,8 +82,9 @@ Error KD_key_print(const KD_key * key) {
         return NULL_PTR_IN_UNEXCITED_PLACE;
     }
 
+    printf("KEY: ");
     for (size_t i = 0; i < key->number_of_dimensions; ++i) {
-        printf("%u", key->keys[i]);
+        printf("%u ", key->keys[i]);
     }
     printf("\n");
 

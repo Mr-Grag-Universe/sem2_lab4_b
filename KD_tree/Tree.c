@@ -75,7 +75,7 @@ Error KD_tree_free(KD_tree * tree) {
     return IT_IS_OK;
 }
 
-KD_iterator_container * KD_tree_get_node(const KD_tree * tree, KD_key * key) {
+KD_node_iterator_container * KD_tree_get_node(const KD_tree * tree, KD_key * key) {
     if (tree == NULL) {
         fprintf(stderr, "tree ptr is NULL in adding.\n");
         return NULL;
@@ -114,11 +114,52 @@ KD_iterator_container * KD_tree_get_node(const KD_tree * tree, KD_key * key) {
         }
     }
 
-    KD_iterator_container * container = malloc(sizeof(KD_iterator_container));
+    KD_node_iterator_container * container = malloc(sizeof(KD_node_iterator_container));
     container->number_of_elements = number_of_nodes;
     container->iterator = nodes;
 
     return container;
+}
+
+KD_item_iterator_container * KD_tree_get_items(const KD_tree * tree, KD_key * key) {
+    if (key == NULL) {
+        fprintf(stderr, "Entered key is null!\n");
+        return NULL;
+    }
+    KD_node_iterator_container * container = KD_tree_get_node(tree, key);
+    if (container == NULL || container->number_of_elements == 0 && container->iterator == NULL) {
+        //printf("there is no such element in this tree.\n");
+        if (container)
+            KD_node_container_free(container);
+        //KD_key_free(key);
+        return NULL;
+    }
+
+    KD_item ** items = NULL;
+    KD_node ** nodes = container->iterator;
+    size_t number_of_nodes = container->number_of_elements;
+    size_t number_of_eq = 0;
+    for (size_t i = 0; i < number_of_nodes; ++i) {
+        // можно улучшить ассимптотику через бинарный поиск
+        for (size_t j = 0; j < nodes[i]->number_of_items; ++j) {
+            if (!KD_key_cmp(nodes[i]->items[j]->key, key, 1, 0)) {
+                items = realloc(items, sizeof(KD_item*) * (number_of_eq+1));
+                items[number_of_eq] = nodes[i]->items[j];
+                number_of_eq++;
+            }
+        }
+    }
+    KD_node_container_free(container);
+
+    if (number_of_eq == 0) {
+        fprintf(stderr, "item was found with get_node from tree but it didn't with get_item from node.\n");
+        return NULL;
+    }
+    KD_item_iterator_container * res = malloc(sizeof(KD_item_iterator_container));
+    res->iterator = items;
+    res->number_of_elements = number_of_eq;
+
+    return res;
 }
 
 Error KD_tree_add(KD_tree * tree, KD_item * item) {
@@ -138,13 +179,13 @@ Error KD_tree_add(KD_tree * tree, KD_item * item) {
         return IT_IS_OK;
     }
 
-//    KD_iterator_container * container = KD_tree_get_node(tree, item->key);
+//    KD_node_iterator_container * container = KD_tree_get_node(tree, item->key);
 //    if (container->number_of_elements) {
-//        KD_container_free(container);
+//        KD_node_container_free(container);
 //        return IT_IS_OK;
 //    }
 //    KD_node * node = container->iterator[container->number_of_elements-1];
-//    KD_container_free(container);
+//    KD_node_container_free(container);
 
     KD_node * node = tree->root;
     size_t ind = 0;
@@ -179,11 +220,13 @@ Error KD_tree_delete(KD_tree * tree, KD_key * key, size_t index_of_item) {
         return WRONG_INPUT;
     }
 
-    KD_iterator_container * container = KD_tree_get_node(tree, key);
+    KD_node_iterator_container * container = KD_tree_get_node(tree, key);
     if (container->iterator == NULL || container->number_of_elements == 0) {
-        KD_container_free(container);
+        KD_node_container_free(container);
         return NULL_PTR_IN_UNEXCITED_PLACE;
     }
+
+    // можно добавить функцию распаковщик контейнеров
     KD_node ** nodes = container->iterator;
     size_t number_of_nodes = container->number_of_elements;
 
@@ -226,7 +269,7 @@ Error KD_tree_delete(KD_tree * tree, KD_key * key, size_t index_of_item) {
         node->number_of_items--;
     }
 
-    KD_container_free(container);
+    KD_node_container_free(container);
     free(indexes);
     free(items);
 
