@@ -4,9 +4,11 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "math.h"
 #include "Errors.h"
 #include "KD_tree.h"
 #include "SortsSearch.h"
+#include "MyMath.h"
 
 size_t KD_BS(const KD_node * node, unsigned int x) {
     size_t dim = node->current_node_dimension_index;
@@ -346,4 +348,87 @@ Error KD_tree_print(const KD_tree * tree) {
     free(offset);
 
     return IT_IS_OK;
+}
+
+KD_item * recursion_nearest_neighbour(KD_node * node, KD_key * original_key, double * d) {
+    if (node == NULL)
+        return NULL;
+
+    size_t dim = original_key->number_of_dimensions;
+    KD_item * item1 = NULL;
+    double min_d1 = 0;
+    if (node->number_of_items != 0) {
+        min_d1 = distance(node->items[0]->key->keys, original_key->keys, dim, U_INT);
+    }
+    for (size_t i = 0; i < node->number_of_items; ++i) {
+        double new_d = distance(node->items[i]->key->keys, original_key->keys, dim, U_INT);
+        if (min_d1 > new_d) {
+            item1 = node->items[i];
+            min_d1 = new_d;
+        }
+    }
+
+    KD_item * item = NULL;
+    double min_d2 = 0;
+    if (node->left && node->right) {
+        //unsigned int or_k = original_key->keys[node->current_node_dimension_index];
+        //unsigned int t_k = temp_key->keys[node->current_node_dimension_index];
+
+        KD_item * item_l = recursion_nearest_neighbour(node->left, original_key, d);
+        KD_item * item_r = recursion_nearest_neighbour(node->right, original_key, d);
+
+        double left_d = (item_l) ? distance(item_l->key->keys, original_key->keys, dim, U_INT) : -1;
+        double right_d = (item_r) ? distance(item_r->key->keys, original_key->keys, dim, U_INT): -1;
+
+        if (left_d && right_d && left_d < right_d && left_d < *d || left_d < *d && left_d != -1 && right_d == -1) {
+            item = item_l;
+            min_d2 = left_d;
+        }
+        else if (left_d && right_d && right_d < left_d && right_d < *d || right_d < *d && right_d != -1 && left_d == -1) {
+            item = item_r;
+            min_d2 = right_d;
+        }
+    }
+    else if (node->left == NULL && node->right || node->right == NULL && node->left) {
+        fprintf(stderr, "THERE IS ONLY 1 CHILD!!!\n");
+        return NULL;
+    }
+
+    if (item == NULL && item1 == NULL)
+        return NULL;
+    if (item == NULL && item1) {
+        if (min_d1 < *d) {
+            *d = min_d1;
+            return item1;
+        }
+        return NULL;
+    }
+    if (item1 == NULL && item) {
+        if (min_d2 < *d) {
+            *d = min_d2;
+            return item;
+        }
+        return NULL;
+    }
+    if (min_d1 < min_d2) {
+        *d = min_d1;
+        return item1;
+    }
+
+    *d = min_d2;
+    return item;
+}
+
+KD_item * KD_tree_closest_neighbour(const KD_tree * tree, KD_key * key) {
+    if (tree == NULL || tree->root == NULL || tree->root->number_of_items == 0)
+        return NULL;
+
+    KD_item * item_start = tree->root->items[0];
+    double r = distance(key->keys, item_start->key->keys, key->number_of_dimensions, U_INT);
+
+    KD_item * item = recursion_nearest_neighbour(tree->root, key, &r);
+    if (item == NULL)
+        return item_start;
+
+    return item;
 }

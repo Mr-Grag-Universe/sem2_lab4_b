@@ -27,6 +27,7 @@ Error KD_key_free(KD_key * key) {
 
     if (key->keys == NULL) {
         fprintf(stderr, "NULL-ptr keys in key was tried to get free.\n");
+        free(key);
         return FREEING_OF_NULL_PTR;
     }
 
@@ -89,4 +90,21 @@ Error KD_key_print(const KD_key * key) {
     printf("\n");
 
     return IT_IS_OK;
+}
+
+int KD_key_bigger(KD_key * key1, KD_key * key2) {
+    if (key1->number_of_dimensions != key2->number_of_dimensions)
+        return -1;
+
+    size_t number_of_eq = 0;
+    for (size_t i = 0; i < key1->number_of_dimensions; ++i) {
+        if (key1->keys[i] < key2->keys[i])
+            return -1;
+        if (key1->keys[i] == key2->keys[i])
+            number_of_eq++;
+    }
+    if (number_of_eq == key1->number_of_dimensions)
+        return 0;
+
+    return 1;
 }

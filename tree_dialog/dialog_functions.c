@@ -126,42 +126,85 @@ Error get_tree_dialog(const KD_tree * tree) {
     return IT_IS_OK;
 }
 
+Error traversal_tree_dialog(const KD_tree * tree) {
+    printf("Do you wanna get all items or items, which keys bigger then entered.\n1) all\t2) some\n");
+    int chose_all_or_bigger_then_key = 0;
+    while (chose_all_or_bigger_then_key <= 0 || chose_all_or_bigger_then_key > 2) {
+        chose_all_or_bigger_then_key = get_int();
+        if (chose_all_or_bigger_then_key <= 0 || chose_all_or_bigger_then_key > 2) {
+            printf("your answer is wrong. do you want to continue? (y/n): ");
+            char * answer = get_line();
+            if (answer == NULL || strcmp("y", answer) != 0) {
+                return IT_IS_OK;
+            }
+        }
+    }
 
-//Error traversal_tree_dialog(const Tree* tree) {
-//    TreeIteratorContainer * container = create_iterator(tree);
-//    if (container == NULL) {
-//        printf("this tree is empty or something came wrong!\n");
-//        return NULL_PTR_IN_UNEXCITED_PLACE;
-//    }
-//
-//    for (size_t i = 0; i < container->number_of_elements; ++i) {
-//        print_node(container->iterator[i]);
-//    }
-//
-//    frree_container(containe);
-//    return IT_IS_OK;
-//}
+    switch (chose_all_or_bigger_then_key) {
+        case 1: {
+            KD_item_iterator_container * container = KD_item_iterator_create(tree->root);
+            for (size_t i = 0; i < container->number_of_elements; ++i) {
+                KD_item_print(container->iterator[i]);
+            }
+            KD_item_container_free(container);
+            break;
+        }
+        case 2: {
+            KD_key * key = KD_key_enter(tree->number_of_dimensions);
 
-//Error find_min_dialog(const Tree * tree) {
-//    if (tree == NULL) {
-//        fprintf(stderr, "WARNING: This tree's pointer is NULL and there is no min or max element here.\n");
-//        return NULL_PTR_IN_UNEXCITED_PLACE;
-//    }
-//
-//    Node * min = get_min_node(tree->root);
-//    return print_node(min);
-//}
-//
-//Error find_max_dialog(const Tree * tree) {
-//    if (tree == NULL) {
-//        fprintf(stderr, "WARNING: This tree's pointer is NULL and there is no min or max element here.\n");
-//        return NULL_PTR_IN_UNEXCITED_PLACE;
-//    }
-//
-//    Node * max = get_max_node(tree->root);
-//    return print_node(max);
-//}
-//
+            KD_item_iterator_container * container = KD_tree_create_SIIC(tree, key);
+            if (container == NULL || container->number_of_elements == 0) {
+                printf("there is not dots with such key.\n");
+                if (container)
+                    KD_item_container_free(container);
+                return IT_IS_OK;
+            }
+            for (size_t i = 0; i < container->number_of_elements; ++i) {
+                KD_item_print(container->iterator[i]);
+            }
+
+            KD_item_container_free(container);
+            KD_key_free(key);
+
+            break;
+        }
+        default: {
+            fprintf(stderr, "input Error in traversal.\n");
+            return WRONG_INPUT;
+        }
+    }
+
+
+    return IT_IS_OK;
+}
+
+Error nearest_item_dialog(const KD_tree * tree) {
+    if (tree == NULL) {
+        fprintf(stderr, "NULL tree in nearest item.\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+
+    printf("Enter your key.\n(Number of dimensions = %ld)\n", tree->number_of_dimensions);
+    KD_key * key = KD_key_init(0, NULL);
+    while (key->keys == NULL) {
+        KD_key_free(key);
+        key = KD_key_enter(tree->number_of_dimensions);
+    }
+
+    KD_item * item = KD_tree_closest_neighbour(tree, key);
+
+    KD_key_free(key);
+
+    if (item == NULL) {
+        printf("empty tree.\n");
+        return IT_IS_OK;
+    }
+
+    KD_item_print(item);
+
+    return IT_IS_OK;
+}
+
 //Error timing_dialog() {
 //    srand(time(NULL));
 //

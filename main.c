@@ -24,8 +24,7 @@ char ** init_menu_points() {
     menu_points[PRINT_TREE] = "print tree";
     menu_points[DELETE_ALl] = "delete all";
     menu_points[TRAVERSAL] = "tree traversal";
-    menu_points[FIND_MIN_ELEMENT] = "find min element";
-    menu_points[FIND_MAX_ELEMENT] = "find max element";
+    menu_points[NEAREST] = "find the nearest element";
     menu_points[TIMING] = "check out time";// of traversal and searching in BT";
     menu_points[RANDOM_GENERATE] = "generate random tree data";
     menu_points[READ_TREE] = "read tree from file";
@@ -75,17 +74,13 @@ bool execute_command(KD_tree ** tree, Command command) {
             return false;
         }
         case TRAVERSAL: {
-            //traversal_tree_dialog(*tree);
+            traversal_tree_dialog(*tree);
             char * answer = get_line();
             free(answer);
             return false;
         }
-        case FIND_MIN_ELEMENT: {
-            //find_min_dialog(*tree);
-            return false;
-        }
-        case FIND_MAX_ELEMENT: {
-            //find_max_dialog(*tree);
+        case NEAREST: {
+            nearest_item_dialog(*tree);
             return false;
         }
         case TIMING: {
@@ -138,10 +133,8 @@ Command get_command_code(char * command) {
         return DELETE_ALl;
     else if (!strcmp(command, "traversal"))
         return TRAVERSAL;
-    else if (!strcmp(command, "min"))
-        return FIND_MIN_ELEMENT;
-    else if (!strcmp(command, "max"))
-        return FIND_MAX_ELEMENT;
+    else if (!strcmp(command, "nearest"))
+        return NEAREST;
     else if (!strcmp(command, "time"))
         return TIMING;
     else if (!strcmp(command, "read"))

@@ -18,3 +18,5 @@ target_link_libraries(lab4b_prot KD_tree)
 target_link_libraries(dialog KD_tree)
 target_link_libraries(dialog mylib)
 target_link_libraries(lab4b_prot dialog)
+
+add_definitions(-lm)

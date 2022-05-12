@@ -8,12 +8,11 @@
 #include "KD_tree.h"
 
 Error add_tree_dialog(KD_tree * tree);
-Error print_tree_dialog(KD_tree * tree);
+Error print_tree_dialog(const KD_tree * tree);
 Error delete_tree_dialog(KD_tree * tree);
 Error get_tree_dialog(const KD_tree * tree);
-//Error traversal_tree_dialog(const KD_tree* tree);
-//Error find_min_dialog(const KD_tree * tree);
-//Error find_max_dialog(const KD_tree * tree);
+Error traversal_tree_dialog(const KD_tree* tree);
+Error nearest_item_dialog(const KD_tree * tree);
 //Error timing_dialog();
 //Error random_dialog(KD_tree * tree);
 //Error read_tree_dialog(KD_tree ** tree);
