@@ -3,6 +3,7 @@
 //
 #include "stdlib.h"
 #include "stdio.h"
+#include "string.h"
 #include "MyString.h"
 #include "KD_tree.h"
 
@@ -107,4 +108,28 @@ int KD_key_bigger(KD_key * key1, KD_key * key2) {
         return 0;
 
     return 1;
+}
+
+unsigned int * generate_keys(size_t number_of_dimensions, unsigned int min, unsigned int max) {
+    if (max < min) {
+        fprintf(stderr, "max is less then min!\n");
+        return NULL;
+    }
+    unsigned int * keys = calloc(number_of_dimensions, sizeof(unsigned int));
+
+    for (size_t i = 0; i < number_of_dimensions; ++i) {
+        keys[i] = abs(rand()) % (max-min) + min;
+    }
+
+    return keys;
+}
+
+KD_key * KD_key_random(size_t number_of_dimensions, unsigned int min, unsigned int max) {
+    unsigned int * keys = generate_keys(number_of_dimensions, min, max);
+    if (keys == NULL) {
+        fprintf(stderr, "Error.\n");
+        return NULL;
+    }
+    KD_key * key = KD_key_init(number_of_dimensions, keys);
+    return key;
 }

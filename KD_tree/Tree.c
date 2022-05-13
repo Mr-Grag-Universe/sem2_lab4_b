@@ -10,22 +10,72 @@
 #include "SortsSearch.h"
 #include "MyMath.h"
 
-size_t KD_BS(const KD_node * node, unsigned int x) {
-    size_t dim = node->current_node_dimension_index;
-    size_t left = 0, right = node->number_of_items;
+size_t KD_BS(const KD_item ** items, size_t dim, size_t number_of_items, unsigned int x) {
+    size_t left = 0, right = number_of_items;
     size_t size = sizeof(KD_item);
-    void * array = node->items;
+    void * array = items;
     while (left != right) {
         size_t m = (left+right)/2;
         void * p = (void*) ((size_t) array + size*m);
-        if (x > node->items[m]->key->keys[dim]) left = m + 1;
-        else if (x < node->items[m]->key->keys[dim]) right = m;
+        if (x > items[m]->key->keys[dim]) left = m + 1;
+        else if (x < items[m]->key->keys[dim]) right = m;
         else return m;
     }
     return left;
 }
 
-KD_tree * KD_tree_init(size_t number_of_dimension, size_t dots_in_dimension, long (**cmp_funcs)(void*, void*)) {
+void recursion_init_add(KD_tree * tree, KD_item ** items, size_t number, size_t current_dim_ind) {
+    if (number == 0)
+        return;
+
+    KD_item_sort(items, number, current_dim_ind);
+
+    printf("NEW ITERATION.\n");
+    for (size_t i = 0; i < number; ++i) {
+        KD_item_print(items[i]);
+    }
+
+    unsigned int x = KD_item_arithmetic_mean(items, number, current_dim_ind);
+    size_t ind = KD_BS(items, current_dim_ind, number, x);
+    if (ind >= number)
+        ind = number-1;
+
+    size_t n = tree->dots_in_node / 2;
+
+    size_t start_ind = ind;
+    size_t end_ind = ind;
+    size_t store = tree->dots_in_node;
+    for (size_t i = 0; i < n+1; ++i) {
+        if (store == 0)
+            break;
+        if (start_ind) {
+            start_ind--;
+            store--;
+        }
+        if (store == 0)
+            break;
+        if (end_ind != number-1) {
+            end_ind++;
+            store--;
+        }
+    }
+
+    for (size_t i = start_ind; i < end_ind || i == number-1; ++i) {
+        tree->add(tree, items[i]);
+        KD_tree_print(tree);
+    }
+
+    if (number < 4) {
+        return;
+    }
+    size_t new_dim = (current_dim_ind+1)%tree->number_of_dimensions;
+    if (start_ind)
+        recursion_init_add(tree, items, start_ind, new_dim);
+    if (end_ind != number-1)
+        recursion_init_add(tree, items+end_ind, number-end_ind, new_dim);
+}
+
+KD_tree * KD_tree_init(size_t number_of_dimension, size_t dots_in_dimension, KD_item_iterator_container * container) {
     KD_tree * tree = malloc(sizeof(KD_tree));
     if (tree == NULL) {
         fprintf(stderr, "Tree is not enough memory for tree initialisation.\n");
@@ -46,6 +96,13 @@ KD_tree * KD_tree_init(size_t number_of_dimension, size_t dots_in_dimension, lon
 
     tree->free = KD_tree_free;
     tree->add = KD_tree_add;
+
+    if (container) {
+        for (size_t i = 0; i < container->number_of_elements; ++i) {
+            KD_item_print(container->iterator[i]);
+        }
+        recursion_init_add(tree, container->iterator, container->number_of_elements, 0);
+    }
 
     return tree;
 }
@@ -431,4 +488,15 @@ KD_item * KD_tree_closest_neighbour(const KD_tree * tree, KD_key * key) {
         return item_start;
 
     return item;
+}
+
+KD_tree * KD_tree_random(size_t number_of_dimensions, size_t dots_in_dimension, size_t number, unsigned int min, unsigned int max, size_t len_of_data) {
+    if (min > max) {
+        return NULL;
+    }
+
+    KD_item ** items = KD_item_random_array(number, min, max, number, len_of_data);
+    // KD_tree * tree = KD_tree_init(number_of_dimensions, dots_in_dimension, items);
+
+    return NULL; //tree;
 }

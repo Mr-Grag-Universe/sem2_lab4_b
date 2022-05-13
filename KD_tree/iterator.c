@@ -113,6 +113,14 @@ Error KD_item_container_free(KD_item_iterator_container * container) {
     return IT_IS_OK;
 }
 
+KD_item_iterator_container * KD_IIC_init(size_t number, KD_item ** items) {
+    KD_item_iterator_container * container = malloc(sizeof(KD_item_iterator_container));
+    container->iterator = items;
+    container->number_of_elements = number;
+
+    return container;
+}
+
 KD_item_iterator_container * KD_NC_unpack(KD_node_iterator_container * container) {
     if (container == NULL) {
         return NULL;

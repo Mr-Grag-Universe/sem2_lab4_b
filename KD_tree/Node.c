@@ -73,8 +73,11 @@ unsigned int KD_node_count_face(KD_node * node) {
     }
 
     unsigned long long sum = 0;
-    for (size_t i = 0; i < node->number_of_items; ++i)
+    for (size_t i = 0; i < node->number_of_items; ++i) {
+        //if (node->items[i]->number_of_dimensions > 2 || node->current_node_dimension_index > 2)
+        //    printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
         sum += node->items[i]->key->keys[node->current_node_dimension_index];
+    }
 
     return (unsigned int)(sum / node->number_of_items);
 }
@@ -90,8 +93,9 @@ Error KD_node_add(KD_node * node, KD_item * item) {
     }
 
     if (node->number_of_items == node->max_number_of_items) {
-        node->left = KD_node_init(node->max_number_of_items, (node->current_node_dimension_index + 1) % node->max_number_of_items);
-        node->right = KD_node_init(node->max_number_of_items, (node->current_node_dimension_index + 1) % node->max_number_of_items);
+        size_t new_dim = (node->current_node_dimension_index + 1) % item->number_of_dimensions;
+        node->left = KD_node_init(node->max_number_of_items, new_dim);
+        node->right = KD_node_init(node->max_number_of_items, new_dim);
 
         node->face = KD_node_count_face(node);
 
@@ -102,7 +106,7 @@ Error KD_node_add(KD_node * node, KD_item * item) {
         }
     }
 
-    size_t ind = KD_BS(node, item->key->keys[node->current_node_dimension_index]);
+    size_t ind = KD_BS(node->items, node->current_node_dimension_index, node->number_of_items, item->key->keys[node->current_node_dimension_index]);
     if (ind >= node->max_number_of_items) {
         fprintf(stderr, "index out of range in adding to node.\n");
         exit(WRONG_INPUT);
@@ -121,7 +125,7 @@ KD_item * KD_node_get_item(const KD_node * node, unsigned int x) {
         return NULL;
     }
 
-    size_t ind = KD_BS(node, x);
+    size_t ind = KD_BS(node->items, node->current_node_dimension_index, node->number_of_items, x);
     if (ind >= node->max_number_of_items)
         return NULL;
 
@@ -138,7 +142,7 @@ Error KD_node_delete(KD_node * node, KD_key * key) {
     }
 
     KD_item * item = KD_node_get_item(node, key->keys[node->current_node_dimension_index]);
-    size_t ind = KD_BS(node, key->keys[node->current_node_dimension_index]);
+    size_t ind = KD_BS(node->items, node->current_node_dimension_index, node->number_of_items, key->keys[node->current_node_dimension_index]);
     if (item == NULL) {
         fprintf(stderr, "strange null in node deleting.\n");
         return NULL_PTR_IN_UNEXCITED_PLACE;

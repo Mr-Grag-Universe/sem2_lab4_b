@@ -227,3 +227,14 @@ void line_to_lower(char * line) {
         line[i-1] = (char) tolower(c);
     }
 }
+
+int y_n_question_answer(char * question) {
+    printf("%s (y/n): ", question);
+    char * answer = get_line();
+    if (answer == NULL || strcmp("y", answer) != 0) {
+        free(answer);
+        return 0;
+    }
+    free(answer);
+    return 1;
+}

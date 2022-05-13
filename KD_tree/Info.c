@@ -6,6 +6,7 @@
 #include "Errors.h"
 #include "KD_tree.h"
 #include "KGetLine.h"
+#include "MyString.h"
 
 KD_info * KD_info_init(char * str_info) {
     KD_info * info = malloc(sizeof(KD_info));
@@ -47,4 +48,9 @@ Error KD_info_print(KD_info * info) {
     printf("INFO: %s\n", info->str_info);
 
     return IT_IS_OK;
+}
+
+KD_info * KD_info_random(size_t len) {
+    KD_info * info = KD_info_init(generate_word(len));
+    return info;
 }

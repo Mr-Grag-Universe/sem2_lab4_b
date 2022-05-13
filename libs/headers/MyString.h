@@ -12,4 +12,5 @@ unsigned int get_u_int();
 char * str_copy(char * line);
 char * generate_word(size_t size);
 void line_to_lower(char * line);
+int y_n_question_answer(char * question);
 #endif

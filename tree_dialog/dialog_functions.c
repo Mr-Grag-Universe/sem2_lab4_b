@@ -278,12 +278,22 @@ Error nearest_item_dialog(const KD_tree * tree) {
 //
 //    return IT_IS_OK;
 //}
-//
-//Error random_dialog(Tree * tree) {
-//    fill_tree_with_random_data(tree, 10, 0, 100, 4);
-//    return IT_IS_OK;
-//}
-//
+
+Error random_dialog(KD_tree ** tree) {
+    int answer = y_n_question_answer("do you really wanna erase current tree?\n");
+    if (answer) {
+        size_t number_of_dimensions = (*tree)->number_of_dimensions;
+        size_t dots_in_node = (*tree)->dots_in_node;
+        KD_tree_free(*tree);
+        KD_item ** items = KD_item_random_array(number_of_dimensions, 0, 100, 30, 5);
+        KD_item_iterator_container * container = KD_IIC_init(30, items);
+        *tree = KD_tree_init(number_of_dimensions, dots_in_node, container);
+        KD_item_container_free(container);
+        // free(items);
+    }
+    return IT_IS_OK;
+}
+
 //Error read_tree_dialog(Tree ** tree) {
 //    printf("Do you really want to delete your current tree?\n");
 //    char * answer = get_line();

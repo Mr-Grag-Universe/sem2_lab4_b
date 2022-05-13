@@ -88,7 +88,7 @@ bool execute_command(KD_tree ** tree, Command command) {
             return false;
         }
         case RANDOM_GENERATE: {
-            //random_dialog(*tree);
+            random_dialog(tree);
             return false;
         }
         case READ_TREE: {
