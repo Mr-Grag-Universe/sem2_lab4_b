@@ -294,23 +294,25 @@ Error random_dialog(KD_tree ** tree) {
     return IT_IS_OK;
 }
 
-//Error read_tree_dialog(Tree ** tree) {
-//    printf("Do you really want to delete your current tree?\n");
-//    char * answer = get_line();
-//    if (!(!strcmp(answer, "y") || !strcmp(answer, "yes"))) {
-//        if (answer)
-//            free(answer);
-//        return IT_IS_OK;
-//    }
-//    free(answer);
-//
-//    free_BT(*tree);
-//
-//    *tree = read_tree("tree.txt");
-//
-//    return IT_IS_OK;
-//}
-//
+Error read_tree_dialog(KD_tree ** tree) {
+    printf("Do you really want to delete your current tree?\n");
+    char * answer = get_line();
+    if (!(!strcmp(answer, "y") || !strcmp(answer, "yes"))) {
+        if (answer)
+            free(answer);
+        return IT_IS_OK;
+    }
+    free(answer);
+
+    KD_tree_free(*tree);
+
+    *tree = read_tree("tree.txt");
+    if (*tree == NULL)
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+
+    return IT_IS_OK;
+}
+
 //Error number_of_words_in_file() {
 //    printf("enter the name of your txt file: \n");
 //    char * file_name = get_line();

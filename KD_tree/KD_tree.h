@@ -100,6 +100,7 @@ struct KD_node_iterator_container * KD_tree_get_node(const KD_tree *, KD_key *);
 struct KD_item_iterator_container * KD_tree_get_items(const KD_tree * tree, KD_key * key);
 Error KD_tree_print(const KD_tree *);
 KD_item * KD_tree_closest_neighbour(const KD_tree * tree, KD_key * key);
+KD_tree * read_tree(char * name_of_file);
 
 //=============ITERATORS============
 

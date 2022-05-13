@@ -92,7 +92,7 @@ bool execute_command(KD_tree ** tree, Command command) {
             return false;
         }
         case READ_TREE: {
-            //read_tree_dialog(tree);
+            read_tree_dialog(tree);
             return false;
         }
         case COUNT_WORDS_IN_FILE: {
