@@ -30,10 +30,10 @@ void recursion_init_add(KD_tree * tree, KD_item ** items, size_t number, size_t 
 
     KD_item_sort(items, number, current_dim_ind);
 
-    printf("NEW ITERATION.\n");
-    for (size_t i = 0; i < number; ++i) {
-        KD_item_print(items[i]);
-    }
+    //printf("NEW ITERATION.\n");
+    //for (size_t i = 0; i < number; ++i) {
+    //    KD_item_print(items[i]);
+    //}
 
     unsigned int x = KD_item_arithmetic_mean(items, number, current_dim_ind);
     size_t ind = KD_BS(items, current_dim_ind, number, x);
@@ -62,7 +62,7 @@ void recursion_init_add(KD_tree * tree, KD_item ** items, size_t number, size_t 
 
     for (size_t i = start_ind; i < end_ind || i == number-1; ++i) {
         tree->add(tree, items[i]);
-        KD_tree_print(tree);
+        //KD_tree_print(tree);
     }
 
     if (number < 4) {
@@ -98,9 +98,9 @@ KD_tree * KD_tree_init(size_t number_of_dimension, size_t dots_in_dimension, KD_
     tree->add = KD_tree_add;
 
     if (container) {
-        for (size_t i = 0; i < container->number_of_elements; ++i) {
-            KD_item_print(container->iterator[i]);
-        }
+        //for (size_t i = 0; i < container->number_of_elements; ++i) {
+        //    KD_item_print(container->iterator[i]);
+        //}
         recursion_init_add(tree, container->iterator, container->number_of_elements, 0);
     }
 

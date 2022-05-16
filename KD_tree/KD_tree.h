@@ -5,6 +5,7 @@
 #ifndef LAB4B_PROT_KD_TREE_H
 #define LAB4B_PROT_KD_TREE_H
 #include "stdlib.h"
+#include "stdio.h"
 #include "stdbool.h"
 #include "Errors.h"
 
@@ -28,6 +29,7 @@ KD_key * KD_key_random(size_t number_of_dimensions, unsigned int min, unsigned i
 
 typedef struct KD_info {
     char * str_info;
+    long long_int_info;
 } KD_info;
 KD_info * KD_info_init();
 Error KD_info_free(KD_info *);
@@ -101,6 +103,8 @@ struct KD_item_iterator_container * KD_tree_get_items(const KD_tree * tree, KD_k
 Error KD_tree_print(const KD_tree *);
 KD_item * KD_tree_closest_neighbour(const KD_tree * tree, KD_key * key);
 KD_tree * read_tree(char * name_of_file);
+Error update_graph(KD_tree * tree);
+KD_tree * find_all_numbers(FILE * file);
 
 //=============ITERATORS============
 
@@ -120,6 +124,7 @@ KD_item_iterator_container * KD_item_iterator_create(const KD_node * node);
 Error KD_item_container_free(KD_item_iterator_container * container);
 
 KD_item_iterator_container * KD_tree_create_SIIC(const KD_tree * tree, KD_key * key);
+
 
 #endif //LAB4B_PROT_KD_TREE_H
 

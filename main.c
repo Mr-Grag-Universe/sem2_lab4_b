@@ -84,7 +84,7 @@ bool execute_command(KD_tree ** tree, Command command) {
             return false;
         }
         case TIMING: {
-            //timing_dialog();
+            timing_dialog();
             return false;
         }
         case RANDOM_GENERATE: {
@@ -96,11 +96,12 @@ bool execute_command(KD_tree ** tree, Command command) {
             return false;
         }
         case COUNT_WORDS_IN_FILE: {
-            //number_of_words_in_file();
+            KD_tree_free(*tree);
+            *tree = number_of_words_in_file();
             return false;
         }
         case GRAPHVIZ: {
-            //dialog_update_graphviz(*tree);
+            dialog_update_graphviz(*tree);
             return false;
         }
         default: {
@@ -157,6 +158,8 @@ int main() {
     srand(time(NULL));
     bool finish = false;
     char ** menu = init_menu_points();
+
+    printf("%ld", sizeof(NULL));
 
     KD_tree * tree = start_session();
     if (tree == NULL) {

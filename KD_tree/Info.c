@@ -11,6 +11,7 @@
 KD_info * KD_info_init(char * str_info) {
     KD_info * info = malloc(sizeof(KD_info));
     info->str_info = str_info;
+    info->long_int_info = 0;
 
     return info;
 }
@@ -45,7 +46,7 @@ Error KD_info_print(KD_info * info) {
         return NULL_PTR_IN_UNEXCITED_PLACE;
     }
 
-    printf("INFO: %s\n", info->str_info);
+    printf("INFO: %s, %ld\n", info->str_info, info->long_int_info);
 
     return IT_IS_OK;
 }

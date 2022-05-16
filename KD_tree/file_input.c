@@ -86,7 +86,9 @@ KD_tree * read_tree(char * name_of_file) {
     KD_item_iterator_container * container = KD_IIC_init(number, items);
 
     KD_tree * tree = KD_tree_init(2, 3, container);
-    free(container);
+    KD_item_container_free(container);
+
+    fclose(file);
 
     return tree;
 }
