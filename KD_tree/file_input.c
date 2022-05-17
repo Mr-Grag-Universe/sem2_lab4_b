@@ -46,7 +46,7 @@ KD_info * read_info(FILE * file, long offset) {
     if (file == NULL)
         return NULL;
 
-    KD_info * info = KD_info_init();
+    KD_info * info = KD_info_init(NULL);
 
     char * line = f_get_line(file, offset);
     if (line == NULL || line[0] == '\0') {

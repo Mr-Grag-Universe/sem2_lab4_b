@@ -166,7 +166,7 @@ void print_node(KD_node * node, FILE * stream, char * subname) {
         for (size_t j = 0; j < node->items[i]->number_of_dimensions; ++j) {
             fprintf(stream, "%u ", node->items[i]->key->keys[j]);
         }
-        fprintf(stream, "</TD><TD> Info: %s</TD>", node->items[i]->info->str_info);
+        fprintf(stream, "</TD><TD> Info: %s, %ld</TD>", node->items[i]->info->str_info, node->items[i]->info->long_int_info);
         fprintf(stream, "</TR>\n");
     }
     if (node->number_of_items == 0) {

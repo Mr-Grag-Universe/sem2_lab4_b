@@ -31,7 +31,7 @@ typedef struct KD_info {
     char * str_info;
     long long_int_info;
 } KD_info;
-KD_info * KD_info_init();
+KD_info * KD_info_init(char * str_info);
 Error KD_info_free(KD_info *);
 KD_info * KD_info_enter();
 Error KD_info_print(KD_info *);

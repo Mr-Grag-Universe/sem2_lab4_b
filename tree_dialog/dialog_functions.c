@@ -11,6 +11,7 @@
 #include "KGetLine.h"
 #include "FGetLine.h"
 #include "MyString.h"
+#include "math.h"
 
 Error add_tree_dialog(KD_tree * tree) {
     printf("Enter your key: ");
@@ -135,8 +136,11 @@ Error traversal_tree_dialog(const KD_tree * tree) {
             printf("your answer is wrong. do you want to continue? (y/n): ");
             char * answer = get_line();
             if (answer == NULL || strcmp("y", answer) != 0) {
+                if (answer)
+                    free(answer);
                 return IT_IS_OK;
             }
+            free(answer);
         }
     }
 
@@ -210,8 +214,8 @@ Error timing_dialog() {
 
     long double * table_of_results = malloc(sizeof(long double) * 100);
 
-    for (int i = 0; i < 10; ++i) {
-        size_t number_of_elements = 100000*(i+1);
+    for (int i = 0; i < 50; ++i) {
+        size_t number_of_elements = 20000*(i+1);
         printf("number: %ld\n", number_of_elements);
 
 
@@ -271,7 +275,9 @@ Error timing_dialog() {
 
     FILE * file = fopen("results.txt", "w");
     for (size_t i = 0; i < 100; ++i) {
-        fprintf(file, "%ld; %Lf\n", (i+1)*10000, table_of_results[i]);
+        int whole_part = (int) table_of_results[i];
+        int other_part = (int) ceil(table_of_results[i]*1000000);
+        fprintf(file, "%d,%d\n", whole_part, other_part);
         printf("%ld: %Lf\n", (i+1)*10000, table_of_results[i]);
     }
     fclose(file);
@@ -314,6 +320,14 @@ Error read_tree_dialog(KD_tree ** tree) {
     return IT_IS_OK;
 }
 
+unsigned int array[] = {10, 100, 10, 100, 2, 2, 3};
+
+void write_array(FILE * file) {
+    for (size_t i = 0; i < 7; ++i) {
+        fwrite(array+i, sizeof(unsigned int), 1, file);
+    }
+}
+
 KD_tree * number_of_words_in_file() {
     printf("enter the name of your txt file: \n");
     char * file_name = get_line();
@@ -323,15 +337,20 @@ KD_tree * number_of_words_in_file() {
         return NULL;
     }
 
-    FILE * file = fopen(file_name, "r");
+    //FILE * file = fopen(file_name, "wb");
+    //write_array(file);
+    //fclose(file);
+    //system("hexdump -c file");
+
+    FILE * file = fopen(file_name, "rb");
     if (file == NULL) {
         free(file_name);
         return NULL;
     }
 
     KD_tree * tree = find_all_numbers(file);
-
     fclose(file);
+    free(file_name);
 
     return tree;
 }

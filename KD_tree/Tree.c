@@ -364,7 +364,7 @@ Error KD_tree_recursion_print(KD_node * node, char ** offset) {
             printf("key: ");
             for (size_t j = 0; j < item->number_of_dimensions; ++j)
                 printf("%u ", item->key->keys[j]);
-            printf(": %s; ", item->info->str_info);
+            printf(": %s, %ld; ", item->info->str_info, item->info->long_int_info);
         }
     else
         printf("-");

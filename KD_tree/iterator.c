@@ -142,12 +142,43 @@ KD_item_iterator_container * KD_NC_unpack(KD_node_iterator_container * container
     return container1;
 }
 
+void recursion_SIIC(KD_node * node, size_t * number_of_nodes, KD_key * key, KD_item *** items) {
+    if (node == NULL)
+        return;
+
+    for (size_t i = 0; i < node->number_of_items; ++i) {
+        if (KD_key_bigger(node->items[i]->key, key) > 0) {
+            *items = realloc(*items, sizeof(KD_item *) * (*number_of_nodes + 1));
+            (*items)[*number_of_nodes] = node->items[i];
+            (*number_of_nodes)++;
+        }
+    }
+
+    if (node->face < key->keys[node->current_node_dimension_index]) {
+        recursion_SIIC(node->right, number_of_nodes, key, items);
+    }
+    else {
+        recursion_SIIC(node->right, number_of_nodes, key, items);
+        recursion_SIIC(node->left, number_of_nodes, key, items);
+    }
+}
+
 KD_item_iterator_container * KD_tree_create_SIIC(const KD_tree * tree, KD_key * key) {
     if (tree == NULL || tree->root == NULL) {
         fprintf(stderr, "WARNING: Tree given for the iteration is empty or it's pointer is NULL.\n");
         return NULL;
     }
 
+    KD_item ** items = NULL;
+    size_t number_of_nodes = 0;
+    recursion_SIIC(tree->root, &number_of_nodes, key, &items);
+    KD_item_iterator_container * container = malloc(sizeof(KD_item_iterator_container));
+    container->iterator = items;
+    container->number_of_elements = number_of_nodes;
+
+    return container;
+
+    /*
     unsigned int * keys = calloc(tree->number_of_dimensions, sizeof(unsigned int));
     KD_key * key_face = KD_key_init(tree->number_of_dimensions, keys);
 
@@ -173,4 +204,5 @@ KD_item_iterator_container * KD_tree_create_SIIC(const KD_tree * tree, KD_key * 
     KD_key_free(key_face);
 
     return container;
+     */
 }
